@@ -1,0 +1,20 @@
+---
+title: "Smoothing Functional Data Via Least Squares"
+output: html_notebook
+---
+
+Chp 3, 4, and 5 in Functional Data Analysis by J.O.Ramsay and B.W.Silverman, mainly about how to fit function to data.
+
+## OLE
+Consider our assumption that
+$$y_{j} = x(t_{j}) + \epsilon_{j},\quad j=1,...,T$$
+while $x$ are represented by linear combination of the basis functions
+$$x = \boldsymbol{c}' \boldsymbol{\phi}$$
+Now we rewrite the equation into matrix forms
+$$
+\begin{aligned}
+Y &= (x(t_{0}), ..., x(t_{T}))' + \epsilon \\
+&= (c' \phi(t_{0}), ..., c' \phi(t_{T}))'
+\end{aligned}
+$$
+

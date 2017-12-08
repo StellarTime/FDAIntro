@@ -1,0 +1,45 @@
+---
+title: "Fitting Function to Data"
+output: html_notebook
+---
+Chp 3, 4, and 5 in Functional Data Analysis by J.O.Ramsay and B.W.Silverman, mainly about how to fit function to data.
+
+## From functional data to smooth funcitons
+### Samples of functional data
+While data are in most case noisy, we want to extract smooth functions from it and leave out the noisy parts, which includes both real $noise$ and those high frequent variations that we deliberately leave out of our consideration.
+$$\boldsymbol{y} = x(\boldsymbol{t}) + \boldsymbol{\epsilon}$$
+The error term are those noisy part whil the standard model for its variance is $$var(\boldsymbol{y}) = var(\boldsymbol{\epsilon}) = \sigma^{2}\boldsymbol{I}$$
+
+### Resolution
+Greater resolution makes it easier for estimation especially when S/N ratio is low or the curvature servere. However, higher resolution also makes the estimation of derivatives challenging, since the effect of noise is exaggerated when using simple differences as estimates of derivatives.
+
+### Basis functions
+Basis functions are sets of functions that are mathematically independent of each other and that whose linear combinations could approximate any function arbitrarily well. Common basis function systems:
+
+* monomials: $1, t, t^{2}, ..., t^{k}, ...$
+* Fourier series: $1, sin(\omega t), cos(\omega t), sin(2\omega t), cos(2\omega t), ...$
+
+The function $\boldsymbol{x}$ can be smoothed/interplolated given the basis
+$$x = \boldsymbol{c'} \boldsymbol{\phi}$$
+while the choice of basis significantly influence the estimation of derivatives in that
+$$D\hat{x(t)}= \boldsymbol{\hat{c'}} D \boldsymbol{\phi}$$
+
+### Fourier Basis
+The Fourier basis is usually a good choice for those data that to some extent exhibits periodicity and do not show great local features anywhere. Also, it is not suitable when we know a priori that the low order derivatives of the underlying function do not exist. The Fast Fourier Transformation (FFT) algo. provides great computational efficiency to bolster the application of this basis.
+
+### B-Spline Basis
+The spline functions offer another choice to smooth the data. The B-spline basis are several Bezier Curves joined end to end, while Bezier Curves are convex combinations of lines defined by control points. The B-spline of degree k with $n + 1$ control points consists of $n + 1 - k$ Bezier curves, and it can be represented as
+$$S(t) = \sum_{i = 0}^{n} N_{i,k}(t) P_{i}$$
+where $P_{i}$ are the control points, and the basis functions $N_{i, k}$ are defined using the Cox-de Boor recursive functions
+$$
+\begin{aligned}
+    N_{i, 0}(t) &= I\{t \in [t_{i}, t_{i+1})\},\\
+    N_{i, j}(t) &= \frac{t - t_{i}}{{t_{i + j} - t_{i}}} N_{i, j-1}(t) + \frac{t_{i + j + 1} - t}{{t_{i + j + 1} - t_{i + 1}}} N_{i + 1, j-1}(t)
+\end{aligned}
+$$
+The $t_{i}$ sequence in the above formula are the knot sequence. A B-spline of k degree and n + 1 control points has n + 1 + k knots, while the actuall value should be chosen using certain algo.. If the knots divide the domain into equal intervals, then the spline is called uniform B-spline.
+Details about B-splines are in another note.
+
+
+## Other useful basis systems
+More complex systems such as *wavelets* incorporate the frequency-specific approximating power of *Fourier Basis* as well as spatially-localized features, while simpler systems such as *step functions* and *polygons* also exhibits great strength in their applications.
