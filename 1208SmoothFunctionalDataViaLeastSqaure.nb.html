@@ -174,18 +174,40 @@ $(document).ready(function () {
 
 <!-- rnb-text-begin -->
 <p>Chp 3, 4, and 5 in Functional Data Analysis by J.O.Ramsay and B.W.Silverman, mainly about how to fit function to data.</p>
-<div id="ole" class="section level2">
-<h2>OLE</h2>
+<div id="choosing-the-number-of-basis-functions-k" class="section level2">
+<h2>Choosing the number of basis functions <span class="math inline">\(K\)</span></h2>
+<p>This is in effect similar to variable selection, while stepwise algorithms could be adopted. The basic idea is to trade off bias with variance, since small K leave large amount of variance unconsidered while large K increases the risk of overfitting the data, thus ending up with higher bias. The criterion for the trade off could be <span class="math display">\[MSE(\hat{x}) = E(\hat{x}(t) - x(t))^{2} = bias^{2} (x(t)) + var(x(t))\]</span></p>
+</div>
+<div id="ols" class="section level2">
+<h2>OLS</h2>
 <p>Consider our assumption that <span class="math display">\[y_{j} = x(t_{j}) + \epsilon_{j},\quad j=1,...,T\]</span> while <span class="math inline">\(x\)</span> are represented by linear combination of the basis functions <span class="math display">\[x = \boldsymbol{c}' \boldsymbol{\phi}\]</span> Now we rewrite the equation into matrix forms <span class="math display">\[
 \begin{aligned}
 Y &amp;= (x(t_{0}), ..., x(t_{T}))' + \epsilon \\
-&amp;= (c' \phi(t_{0}), ..., c' \phi(t_{T}))'
+&amp;= (c' \phi(t_{0}), ..., c' \phi(t_{T}))' + \epsilon \\
+&amp;= (\phi(t_{0}), ..., \phi(t_{T}))' c + \epsilon \\
+&amp;= \Phi c + \epsilon, \\
+where \quad Y &amp;= (y_{0}, ..., y_{T})'
 \end{aligned}
-\]</span></p>
+\]</span> Since the basis functions are already chosen, solving the parameters <span class="math inline">\(c_{i}\)</span> can be easily done via least square <span class="math display">\[\hat{c} = (\Phi' \Phi)^{-1} \Phi' Y\]</span></p>
+</div>
+<div id="weighted-ls" class="section level2">
+<h2>Weighted LS</h2>
+<p>This time we minimize the weighted sum of squared errors <span class="math display">\[\hat{c} = argmin \quad SSE = (Y - \Phi c)' W (Y - \Phi c)\]</span> and the result is <span class="math display">\[
+\hat{c} = (\Phi' W \Phi)^{-1} \Phi' W Y, \\
+\hat{Y} = \Phi \hat{c} = \Phi (\Phi' W \Phi)^{-1} \Phi' W Y
+\]</span> where the matrix $S = (‘W )^{-1} ’ $ is called the hat matrix. If the variance-covariance matrix of residual <span class="math inline">\(\epsilon_{i}\)</span> is known, then the weight should be <span class="math inline">\(W = \Sigma_{e}^{-1}\)</span>. Hence in practice we need to estimate the variance matrix w/ data in the following three ways:</p>
+<ul>
+<li>When the standard model is accepted (white noise): <span class="math inline">\(s^2 = \frac{1}{n - K} \sum_{j}^{n} (y_{j} - \hat{y_{j}})^{2}, \quad \Sigma = s^2 I\)</span> where <span class="math inline">\(n\)</span> is the number of observations and <span class="math inline">\(K\)</span> is the number of basis functions;</li>
+<li>When the number <span class="math inline">\(N\)</span> of replicated curves is small or when <span class="math inline">\(N=1\)</span>, assuming AR structure of the residuals can be done via regression analysis, e.g. Draper and Smith (1998);</li>
+<li>When the number <span class="math inline">\(N\)</span> of replicated curves is sufficientlyl large, <span class="math inline">\(\hat{\Sigma_{e}} = (N - 1)^{-1} \boldsymbol{E'} \boldsymbol{E}\)</span>, where <span class="math inline">\(\boldsymbol{E}\)</span> is N-by-n matrix of residuals</li>
+</ul>
+<div id="localized-least-square" class="section level3">
+<h3>Localized Least Square</h3>
 <!-- rnb-text-end -->
 </div>
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiU21vb3RoaW5nIEZ1bmN0aW9uYWwgRGF0YSBWaWEgTGVhc3QgU3F1YXJlcyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKQ2hwIDMsIDQsIGFuZCA1IGluIEZ1bmN0aW9uYWwgRGF0YSBBbmFseXNpcyBieSBKLk8uUmFtc2F5IGFuZCBCLlcuU2lsdmVybWFuLCBtYWlubHkgYWJvdXQgaG93IHRvIGZpdCBmdW5jdGlvbiB0byBkYXRhLgoKIyMgT0xFCkNvbnNpZGVyIG91ciBhc3N1bXB0aW9uIHRoYXQKJCR5X3tqfSA9IHgodF97an0pICsgXGVwc2lsb25fe2p9LFxxdWFkIGo9MSwuLi4sVCQkCndoaWxlICR4JCBhcmUgcmVwcmVzZW50ZWQgYnkgbGluZWFyIGNvbWJpbmF0aW9uIG9mIHRoZSBiYXNpcyBmdW5jdGlvbnMKJCR4ID0gXGJvbGRzeW1ib2x7Y30nIFxib2xkc3ltYm9se1xwaGl9JCQKTm93IHdlIHJld3JpdGUgdGhlIGVxdWF0aW9uIGludG8gbWF0cml4IGZvcm1zCiQkClxiZWdpbnthbGlnbmVkfQpZICY9ICh4KHRfezB9KSwgLi4uLCB4KHRfe1R9KSknICsgXGVwc2lsb24gXFwKJj0gKGMnIFxwaGkodF97MH0pLCAuLi4sIGMnIFxwaGkodF97VH0pKScKXGVuZHthbGlnbmVkfQokJAoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiU21vb3RoaW5nIEZ1bmN0aW9uYWwgRGF0YSBWaWEgTGVhc3QgU3F1YXJlcyIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKQ2hwIDMsIDQsIGFuZCA1IGluIEZ1bmN0aW9uYWwgRGF0YSBBbmFseXNpcyBieSBKLk8uUmFtc2F5IGFuZCBCLlcuU2lsdmVybWFuLCBtYWlubHkgYWJvdXQgaG93IHRvIGZpdCBmdW5jdGlvbiB0byBkYXRhLgoKIyMgQ2hvb3NpbmcgdGhlIG51bWJlciBvZiBiYXNpcyBmdW5jdGlvbnMgJEskClRoaXMgaXMgaW4gZWZmZWN0IHNpbWlsYXIgdG8gdmFyaWFibGUgc2VsZWN0aW9uLCB3aGlsZSBzdGVwd2lzZSBhbGdvcml0aG1zIGNvdWxkIGJlIGFkb3B0ZWQuIFRoZSBiYXNpYyBpZGVhIGlzIHRvIHRyYWRlIG9mZiBiaWFzIHdpdGggdmFyaWFuY2UsIHNpbmNlIHNtYWxsIEsgbGVhdmUgbGFyZ2UgYW1vdW50IG9mIHZhcmlhbmNlIHVuY29uc2lkZXJlZCB3aGlsZSBsYXJnZSBLIGluY3JlYXNlcyB0aGUgcmlzayBvZiBvdmVyZml0dGluZyB0aGUgZGF0YSwgdGh1cyBlbmRpbmcgdXAgd2l0aCBoaWdoZXIgYmlhcy4gVGhlIGNyaXRlcmlvbiBmb3IgdGhlIHRyYWRlIG9mZiBjb3VsZCBiZQokJE1TRShcaGF0e3h9KSA9IEUoXGhhdHt4fSh0KSAtIHgodCkpXnsyfSA9IGJpYXNeezJ9ICh4KHQpKSArIHZhcih4KHQpKSQkCgoKCiMjIE9MUwpDb25zaWRlciBvdXIgYXNzdW1wdGlvbiB0aGF0CiQkeV97an0gPSB4KHRfe2p9KSArIFxlcHNpbG9uX3tqfSxccXVhZCBqPTEsLi4uLFQkJAp3aGlsZSAkeCQgYXJlIHJlcHJlc2VudGVkIGJ5IGxpbmVhciBjb21iaW5hdGlvbiBvZiB0aGUgYmFzaXMgZnVuY3Rpb25zCiQkeCA9IFxib2xkc3ltYm9se2N9JyBcYm9sZHN5bWJvbHtccGhpfSQkCk5vdyB3ZSByZXdyaXRlIHRoZSBlcXVhdGlvbiBpbnRvIG1hdHJpeCBmb3JtcwokJApcYmVnaW57YWxpZ25lZH0KWSAmPSAoeCh0X3swfSksIC4uLiwgeCh0X3tUfSkpJyArIFxlcHNpbG9uIFxcCiY9IChjJyBccGhpKHRfezB9KSwgLi4uLCBjJyBccGhpKHRfe1R9KSknICsgXGVwc2lsb24gXFwKJj0gKFxwaGkodF97MH0pLCAuLi4sIFxwaGkodF97VH0pKScgYyArIFxlcHNpbG9uIFxcCiY9IFxQaGkgYyArIFxlcHNpbG9uLCBcXAp3aGVyZSBccXVhZCBZICY9ICh5X3swfSwgLi4uLCB5X3tUfSknClxlbmR7YWxpZ25lZH0KJCQKU2luY2UgdGhlIGJhc2lzIGZ1bmN0aW9ucyBhcmUgYWxyZWFkeSBjaG9zZW4sIHNvbHZpbmcgdGhlIHBhcmFtZXRlcnMgJGNfe2l9JCBjYW4gYmUgZWFzaWx5IGRvbmUgdmlhIGxlYXN0IHNxdWFyZQokJFxoYXR7Y30gPSAoXFBoaScgXFBoaSleey0xfSBcUGhpJyBZJCQKCgoKIyMgV2VpZ2h0ZWQgTFMKVGhpcyB0aW1lIHdlIG1pbmltaXplIHRoZSB3ZWlnaHRlZCBzdW0gb2Ygc3F1YXJlZCBlcnJvcnMKJCRcaGF0e2N9ID0gYXJnbWluIFxxdWFkIFNTRSA9IChZIC0gXFBoaSBjKScgVyAoWSAtIFxQaGkgYykkJAphbmQgdGhlIHJlc3VsdCBpcwokJApcaGF0e2N9ID0gKFxQaGknIFcgXFBoaSleey0xfSBcUGhpJyBXIFksIFxcClxoYXR7WX0gPSBcUGhpIFxoYXR7Y30gPSBcUGhpIChcUGhpJyBXIFxQaGkpXnstMX0gXFBoaScgVyBZCiQkCndoZXJlIHRoZSBtYXRyaXggJFMgPSBcUGhpIChcUGhpJyBXIFxQaGkpXnstMX0gXFBoaScgJCBpcyBjYWxsZWQgdGhlIGhhdCBtYXRyaXguCklmIHRoZSB2YXJpYW5jZS1jb3ZhcmlhbmNlIG1hdHJpeCBvZiByZXNpZHVhbCAkXGVwc2lsb25fe2l9JCBpcyBrbm93biwgdGhlbiB0aGUgd2VpZ2h0IHNob3VsZCBiZSAkVyA9IFxTaWdtYV97ZX1eey0xfSQuIEhlbmNlIGluIHByYWN0aWNlIHdlIG5lZWQgdG8gZXN0aW1hdGUgdGhlIHZhcmlhbmNlIG1hdHJpeCB3LyBkYXRhIGluIHRoZSBmb2xsb3dpbmcgdGhyZWUgd2F5czoKCiogV2hlbiB0aGUgc3RhbmRhcmQgbW9kZWwgaXMgYWNjZXB0ZWQgKHdoaXRlIG5vaXNlKTogJHNeMiA9IFxmcmFjezF9e24gLSBLfSBcc3VtX3tqfV57bn0gKHlfe2p9IC0gXGhhdHt5X3tqfX0pXnsyfSwgXHF1YWQgXFNpZ21hID0gc14yIEkkIHdoZXJlICRuJCBpcyB0aGUgbnVtYmVyIG9mIG9ic2VydmF0aW9ucyBhbmQgJEskIGlzIHRoZSBudW1iZXIgb2YgYmFzaXMgZnVuY3Rpb25zOwoqIFdoZW4gdGhlIG51bWJlciAkTiQgb2YgcmVwbGljYXRlZCBjdXJ2ZXMgaXMgc21hbGwgb3Igd2hlbiAkTj0xJCwgYXNzdW1pbmcgQVIgc3RydWN0dXJlIG9mIHRoZSByZXNpZHVhbHMgY2FuIGJlIGRvbmUgdmlhIHJlZ3Jlc3Npb24gYW5hbHlzaXMsIGUuZy4gRHJhcGVyIGFuZCBTbWl0aCAoMTk5OCk7CiogV2hlbiB0aGUgbnVtYmVyICROJCBvZiByZXBsaWNhdGVkIGN1cnZlcyBpcyBzdWZmaWNpZW50bHlsIGxhcmdlLCAkXGhhdHtcU2lnbWFfe2V9fSA9IChOIC0gMSleey0xfSBcYm9sZHN5bWJvbHtFJ30gXGJvbGRzeW1ib2x7RX0kLCB3aGVyZSAkXGJvbGRzeW1ib2x7RX0kIGlzIE4tYnktbiBtYXRyaXggb2YgcmVzaWR1YWxzCgoKCiMjIyBMb2NhbGl6ZWQgTGVhc3QgU3F1YXJlCg==</div>
 
 
 

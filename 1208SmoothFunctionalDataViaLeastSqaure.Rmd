@@ -5,7 +5,13 @@ output: html_notebook
 
 Chp 3, 4, and 5 in Functional Data Analysis by J.O.Ramsay and B.W.Silverman, mainly about how to fit function to data.
 
-## OLE
+## Choosing the number of basis functions $K$
+This is in effect similar to variable selection, while stepwise algorithms could be adopted. The basic idea is to trade off bias with variance, since small K leave large amount of variance unconsidered while large K increases the risk of overfitting the data, thus ending up with higher bias. The criterion for the trade off could be
+$$MSE(\hat{x}) = E(\hat{x}(t) - x(t))^{2} = bias^{2} (x(t)) + var(x(t))$$
+
+
+
+## OLS
 Consider our assumption that
 $$y_{j} = x(t_{j}) + \epsilon_{j},\quad j=1,...,T$$
 while $x$ are represented by linear combination of the basis functions
@@ -14,7 +20,32 @@ Now we rewrite the equation into matrix forms
 $$
 \begin{aligned}
 Y &= (x(t_{0}), ..., x(t_{T}))' + \epsilon \\
-&= (c' \phi(t_{0}), ..., c' \phi(t_{T}))'
+&= (c' \phi(t_{0}), ..., c' \phi(t_{T}))' + \epsilon \\
+&= (\phi(t_{0}), ..., \phi(t_{T}))' c + \epsilon \\
+&= \Phi c + \epsilon, \\
+where \quad Y &= (y_{0}, ..., y_{T})'
 \end{aligned}
 $$
+Since the basis functions are already chosen, solving the parameters $c_{i}$ can be easily done via least square
+$$\hat{c} = (\Phi' \Phi)^{-1} \Phi' Y$$
 
+
+
+## Weighted LS
+This time we minimize the weighted sum of squared errors
+$$\hat{c} = argmin \quad SSE = (Y - \Phi c)' W (Y - \Phi c)$$
+and the result is
+$$
+\hat{c} = (\Phi' W \Phi)^{-1} \Phi' W Y, \\
+\hat{Y} = \Phi \hat{c} = \Phi (\Phi' W \Phi)^{-1} \Phi' W Y
+$$
+where the matrix $S = \Phi (\Phi' W \Phi)^{-1} \Phi' $ is called the hat matrix.
+If the variance-covariance matrix of residual $\epsilon_{i}$ is known, then the weight should be $W = \Sigma_{e}^{-1}$. Hence in practice we need to estimate the variance matrix w/ data in the following three ways:
+
+* When the standard model is accepted (white noise): $s^2 = \frac{1}{n - K} \sum_{j}^{n} (y_{j} - \hat{y_{j}})^{2}, \quad \Sigma = s^2 I$ where $n$ is the number of observations and $K$ is the number of basis functions;
+* When the number $N$ of replicated curves is small or when $N=1$, assuming AR structure of the residuals can be done via regression analysis, e.g. Draper and Smith (1998);
+* When the number $N$ of replicated curves is sufficientlyl large, $\hat{\Sigma_{e}} = (N - 1)^{-1} \boldsymbol{E'} \boldsymbol{E}$, where $\boldsymbol{E}$ is N-by-n matrix of residuals
+
+
+
+### Localized Least Square
